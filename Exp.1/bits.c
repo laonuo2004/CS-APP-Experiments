@@ -232,7 +232,8 @@ int bitCount(int x) {
  *   Rating: 3
  */
 int conditional(int x, int y, int z) {
-  return 2;
+  int router = !x + ~0;
+  return (router & y) + (~router & z);
 }
 //two's complement
 /* 
@@ -242,7 +243,7 @@ int conditional(int x, int y, int z) {
  *   Rating: 1
  */
 int tmin(void) {
-  return 2;
+  return 0x01 << 31;
 }
 /* 
  * fitsBits - return 1 if x can be represented as an 
@@ -254,7 +255,8 @@ int tmin(void) {
  *   Rating: 2
  */
 int fitsBits(int x, int n) {
-  return 2;
+  int extended = x >> (n + ~0);
+  return (!extended) | (!(~extended));
 }
 /* 
  * dividePower2 - Compute x/(2^n), for 0 <= n <= 30
