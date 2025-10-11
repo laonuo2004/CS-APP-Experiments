@@ -3,6 +3,8 @@
  * 
  * <Please put your name and userid here>
  * 
+ * 左逸龙 1120231863
+ * 
  * bits.c - Source file with your solutions to the Lab.
  *          This is the file you will hand in to your instructor.
  *
@@ -179,7 +181,7 @@ NOTES:
  *   Rating: 1
  */
 int bitXor(int x, int y) {
-  return 2;
+  return ~(x & y) & ~(~x & ~y);
 }
 /* 
  * getByte - Extract byte n from word x
@@ -190,7 +192,7 @@ int bitXor(int x, int y) {
  *   Rating: 2
  */
 int getByte(int x, int n) {
-  return 2;
+  return (x >> (n << 3)) & 0xff;
 }
 /* 
  * logicalShift - shift x to the right by n, using a logical shift
@@ -201,7 +203,7 @@ int getByte(int x, int n) {
  *   Rating: 3 
  */
 int logicalShift(int x, int n) {
-  return 2;
+  return (x >> n) & ~(((0x01 << 31) >> n) << 1);
 }
 /*
  * bitCount - returns count of number of 1's in word
@@ -211,7 +213,16 @@ int logicalShift(int x, int n) {
  *   Rating: 4
  */
 int bitCount(int x) {
-  return 2;
+  int bitChecker = 0x01 + (0x01 << 8) + (0x01 << 16) + (0x01 << 24);
+  // 0x01010101, ops = 6
+  int bitCounter = (x & bitChecker) + ((x >> 1) & bitChecker)
+                 + ((x >> 2) & bitChecker) + ((x >> 3) & bitChecker)
+                 + ((x >> 4) & bitChecker) + ((x >> 5) & bitChecker)
+                 + ((x >> 6) & bitChecker) + ((x >> 7) & bitChecker);
+  // 各个字节内部分别统计1的个数， ops = 7 + 8 + 7 = 22
+  return (bitCounter & 0xff) + ((bitCounter >> 8) & 0xff)
+         + ((bitCounter >> 16) & 0xff) + ((bitCounter >> 24) & 0xff);
+  // 将各个字节内的1的个数相加， ops = 3 + 4 + 3 = 10
 }
 /* 
  * conditional - same as x ? y : z 
