@@ -267,7 +267,7 @@ int fitsBits(int x, int n) {
  *   Rating: 2
  */
 int dividePower2(int x, int n) {
-    return 2;
+    return (x + (x >> 31) & ((1 << n) + ~0)) >> n;
 }
 /* 
  * negate - return -x 
@@ -277,7 +277,7 @@ int dividePower2(int x, int n) {
  *   Rating: 2
  */
 int negate(int x) {
-  return 2;
+  return ~x + 1;
 }
 /* howManyBits - return the minimum number of bits required to represent x in
  *             two's complement
@@ -292,7 +292,36 @@ int negate(int x) {
  *  Rating: 4
  */
 int howManyBits(int x) {
-  return 0;
+  // 将负数按位取反
+  int sign = x >> 31;
+  x = x ^ sign;
+  
+  // 使用二分查找寻找最高位1所在位置
+  // 检查高16位是否有1
+  int b16 = !!(x >> 16) << 4;
+  x = x >> b16;
+  
+  // 检查高8位是否有1
+  int b8 = !!(x >> 8) << 3;
+  x = x >> b8;
+  
+  // 检查高4位是否有1
+  int b4 = !!(x >> 4) << 2;
+  x = x >> b4;
+  
+  // 检查高2位是否有1
+  int b2 = !!(x >> 2) << 1;
+  x = x >> b2;
+  
+  // 检查最高位是否是1
+  int b1 = !!(x >> 1);
+  x = x >> b1;
+  
+  // 检查最低位是否是1
+  int b0 = x;
+  
+  // 总位数 = 找到的位置 + 1（符号位）
+  return b16 + b8 + b4 + b2 + b1 + b0 + 1;
 }
 /* 
  * isLessOrEqual - if x <= y  then return 1, else return 0 
@@ -302,7 +331,7 @@ int howManyBits(int x) {
  *   Rating: 3
  */
 int isLessOrEqual(int x, int y) {
-  return 2;
+  return ((y + ~x + 1) >> 31) ^ 1;
 }
 /*
  * intLog2 - return floor(log base 2 of x), where x > 0
@@ -312,7 +341,17 @@ int isLessOrEqual(int x, int y) {
  *   Rating: 4
  */
 int intLog2(int x) {
-  return 2;
+  int b16 = !!(x >> 16) << 4;
+  x = x >> b16;
+  int b8 = !!(x >> 8) << 3;
+  x = x >> b8;
+  int b4 = !!(x >> 4) << 2;
+  x = x >> b4;
+  int b2 = !!(x >> 2) << 1;
+  x = x >> b2;
+  int b1 = !!(x >> 1);
+  x = x >> b1;
+  return b16 + b8 + b4 + b2 + b1;
 }
 //float
 /* 
