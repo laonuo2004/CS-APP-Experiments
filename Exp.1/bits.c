@@ -267,7 +267,7 @@ int fitsBits(int x, int n) {
  *   Rating: 2
  */
 int dividePower2(int x, int n) {
-    return (x + (x >> 31) & ((1 << n) + ~0)) >> n;
+    return (x + ((x >> 31) & ((1 << n) + ~0))) >> n;
 }
 /* 
  * negate - return -x 
@@ -331,7 +331,12 @@ int howManyBits(int x) {
  *   Rating: 3
  */
 int isLessOrEqual(int x, int y) {
-  return ((y + ~x + 1) >> 31) ^ 1;
+  int sign_x = x >> 31;
+  int sign_y = y >> 31;
+  int sign_diff = sign_x ^ sign_y;
+  int x_negative_y_positive = sign_x & ~sign_y;
+  int same_sign_result = ((y + ~x + 1) >> 31) ^ 1;
+  return sign_diff & x_negative_y_positive | (!sign_diff) & same_sign_result;
 }
 /*
  * intLog2 - return floor(log base 2 of x), where x > 0

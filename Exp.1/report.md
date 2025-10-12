@@ -391,13 +391,20 @@ int howManyBits(int x) {
 
 函数要求判断 $x \le y$，我们可以将其转换为判断 $y - x \ge 0$，同时注意到 `-x = ~x + 1`，因此我们可以将其转换为 $y + (-x) \ge 0 \rightarrow y + \sim x + 1 \ge 0$。而如果该式成立，则其补码符号位为0，否则为1。因此，我们可以借助符号位来判断该式是否成立。
 
-因此最终我们得到的表达式为：`isLessOrEqual(x, y) = ((y + ~x + 1) >> 31) ^ 1`，其中 `>> 31` 的作用是提取符号位，`^ 1` 的作用是翻转结果。经过检查，操作数为 5，远小于最大操作数24，符合要求。
+但是需要注意的是，当x与y的符号不同时，结果可能会溢出，因此我们需要额外考虑这种情况。幸运的是，当x与y的符号不同时，其大小关系判断起来十分简单，即x为负数，y为正数时，函数返回1，反之返回0。
+
+最终的函数实现可以参考 `函数实现` 部分。经统计，操作数为 14，小于最大操作数24，符合要求。
 
 **函数实现：**
 
 ```C
 int isLessOrEqual(int x, int y) {
-  return ((y + ~x + 1) >> 31) ^ 1;
+  int sign_x = x >> 31;
+  int sign_y = y >> 31;
+  int sign_diff = sign_x ^ sign_y;
+  int x_negative_y_positive = sign_x & ~sign_y;
+  int same_sign_result = ((y + ~x + 1) >> 31) ^ 1;
+  return sign_diff & x_negative_y_positive | (!sign_diff) & same_sign_result;
 }
 ```
 
