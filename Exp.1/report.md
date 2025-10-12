@@ -393,7 +393,7 @@ int howManyBits(int x) {
 
 但是需要注意的是，当x与y的符号不同时，结果可能会溢出，因此我们需要额外考虑这种情况。幸运的是，当x与y的符号不同时，其大小关系判断起来十分简单，即x为负数，y为正数时，函数返回1，反之返回0。
 
-最终的函数实现可以参考 `函数实现` 部分。经统计，操作数为 14，小于最大操作数24，符合要求。
+最终的函数实现可以参考 `函数实现` 部分。经统计，操作数为 16，小于最大操作数24，符合要求。
 
 **函数实现：**
 
@@ -404,7 +404,7 @@ int isLessOrEqual(int x, int y) {
   int sign_diff = sign_x ^ sign_y;
   int x_negative_y_positive = sign_x & ~sign_y;
   int same_sign_result = ((y + ~x + 1) >> 31) ^ 1;
-  return sign_diff & x_negative_y_positive | (!sign_diff) & same_sign_result;
+  return !!(sign_diff & x_negative_y_positive) | (!sign_diff) & same_sign_result;
 }
 ```
 
