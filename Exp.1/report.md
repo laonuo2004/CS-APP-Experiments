@@ -296,14 +296,14 @@ int dividePower2(int x, int n) {
 如果希望证明这一等式，我们可以对其移项得到以下式子：
 
 $$
-x + ~x + 1 = 0
+x + \sim x + 1 = 0
 $$
 
 随后继续移项得到：
 
 $$
 \begin{aligned}
-x + ~x = -1 = \mathrm{0xffffffff} \quad (\text{机器使用32位表示int类型}) \\
+x + \sim x = -1 = \mathrm{0xffffffff} \quad (\text{机器使用32位表示int类型}) \\
 \end{aligned}
 $$
 
