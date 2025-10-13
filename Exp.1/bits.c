@@ -371,7 +371,10 @@ int intLog2(int x) {
  *   Rating: 2
  */
 unsigned floatAbsVal(unsigned uf) {
-  return 2;
+  if ((uf << 9) && !(~((uf >>23) & 0xff))) {
+    return uf;
+  }
+  return uf & ~(0x01 << 31);
 }
 /* 
  * floatScale1d2 - Return bit-level equivalent of expression 0.5*f for
@@ -385,7 +388,39 @@ unsigned floatAbsVal(unsigned uf) {
  *   Rating: 4
  */
 unsigned floatScale1d2(unsigned uf) {
-  return 2;
+  // NaN 与无穷大直接返回
+  if (!(~((uf >> 23) & 0xff))) {
+    return uf;
+  }
+  
+  unsigned sign = uf & (0x01 << 31);
+  unsigned exp = (uf >> 23) & 0xff;
+  unsigned frac = uf & ((0x01 << 23) + ~0);
+  
+  // 非规格化数和exp=1的规格化数需要右移尾数
+  if (!(exp & 0xfe)) {
+    unsigned shifted_frac;
+    
+    if (exp & 0x01) {
+      // exp=1的规格化数：将隐含的1位加入尾数
+      shifted_frac = (0x01 << 23) | frac;
+    } else {
+      // 非规格化数：直接右移尾数
+      shifted_frac = frac;
+    }
+  
+    unsigned result = shifted_frac >> 1;
+
+    // 处理偶数舍入问题
+    if ((shifted_frac & 0x01) && (result & 0x01)) {
+      result = result + 0x01;
+    }
+    return sign | result;
+  }
+  
+  exp = exp - 0x01; // 对于其他规格化数，指数减1即可
+  
+  return sign | (exp << 23) | frac;
 }
 /* 
  * floatFloat2Int - Return bit-level equivalent of expression (int) f
@@ -400,5 +435,38 @@ unsigned floatScale1d2(unsigned uf) {
  *   Rating: 4
  */
 int floatFloat2Int(unsigned uf) {
-  return 2;
+  unsigned sign = uf & (0x01 << 31);
+  unsigned exp = (uf >> 23) & 0xff;
+  unsigned frac = uf & ((0x01 << 23) + ~0);
+  
+  if (exp == 0xff) {
+    return 0x80000000u;
+  }
+  
+  int E = exp - 127;
+  
+  if (E < 0) {
+    return 0;
+  }
+  
+  if (E >= 31) {
+    return 0x80000000u;
+  }
+  
+  unsigned value = frac | (0x01 << 23);
+  
+  if (E < 23) {
+    value = value >> (23 - E);
+  } else {
+    value = value << (E - 23);
+  }
+  
+  if (value > 0x80000000u || (value == 0x80000000u && !sign)) {
+    return 0x80000000u;
+  }
+  
+  if (sign) {
+    return -value;
+  }
+  return value;
 }
