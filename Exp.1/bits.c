@@ -371,7 +371,7 @@ int intLog2(int x) {
  *   Rating: 2
  */
 unsigned floatAbsVal(unsigned uf) {
-  if ((uf << 9) && !(~((uf >>23) & 0xff))) {
+  if ((uf << 9) && !(((uf >> 23) & 0xff) ^ 0xff)) {
     return uf;
   }
   return uf & ~(0x01 << 31);
@@ -389,7 +389,7 @@ unsigned floatAbsVal(unsigned uf) {
  */
 unsigned floatScale1d2(unsigned uf) {
   // NaN 与无穷大直接返回
-  if (!(~((uf >> 23) & 0xff))) {
+  if (!(((uf >> 23) & 0xff) ^ 0xff)) {
     return uf;
   }
   
