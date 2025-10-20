@@ -293,32 +293,40 @@ int negate(int x) {
  */
 int howManyBits(int x) {
   // 将负数按位取反
-  int sign = x >> 31;
+  int sign;
+  int b16;
+  int b8;
+  int b4;
+  int b2;
+  int b1;
+  int b0;
+  
+  sign = x >> 31;
   x = x ^ sign;
   
   // 使用二分查找寻找最高位1所在位置
   // 检查高16位是否有1
-  int b16 = !!(x >> 16) << 4;
+  b16 = !!(x >> 16) << 4;
   x = x >> b16;
   
   // 检查高8位是否有1
-  int b8 = !!(x >> 8) << 3;
+  b8 = !!(x >> 8) << 3;
   x = x >> b8;
   
   // 检查高4位是否有1
-  int b4 = !!(x >> 4) << 2;
+  b4 = !!(x >> 4) << 2;
   x = x >> b4;
   
   // 检查高2位是否有1
-  int b2 = !!(x >> 2) << 1;
+  b2 = !!(x >> 2) << 1;
   x = x >> b2;
   
   // 检查最高位是否是1
-  int b1 = !!(x >> 1);
+  b1 = !!(x >> 1);
   x = x >> b1;
   
   // 检查最低位是否是1
-  int b0 = x;
+  b0 = x;
   
   // 总位数 = 找到的位置 + 1（符号位）
   return b16 + b8 + b4 + b2 + b1 + b0 + 1;
@@ -346,15 +354,21 @@ int isLessOrEqual(int x, int y) {
  *   Rating: 4
  */
 int intLog2(int x) {
-  int b16 = !!(x >> 16) << 4;
+  int b16;
+  int b8;
+  int b4;
+  int b2;
+  int b1;
+  
+  b16 = !!(x >> 16) << 4;
   x = x >> b16;
-  int b8 = !!(x >> 8) << 3;
+  b8 = !!(x >> 8) << 3;
   x = x >> b8;
-  int b4 = !!(x >> 4) << 2;
+  b4 = !!(x >> 4) << 2;
   x = x >> b4;
-  int b2 = !!(x >> 2) << 1;
+  b2 = !!(x >> 2) << 1;
   x = x >> b2;
-  int b1 = !!(x >> 1);
+  b1 = !!(x >> 1);
   x = x >> b1;
   return b16 + b8 + b4 + b2 + b1;
 }
@@ -388,19 +402,23 @@ unsigned floatAbsVal(unsigned uf) {
  *   Rating: 4
  */
 unsigned floatScale1d2(unsigned uf) {
+  unsigned sign;
+  unsigned exp;
+  unsigned frac;
+  unsigned shifted_frac;
+  unsigned result;
+  
   // NaN 与无穷大直接返回
   if (!(((uf >> 23) & 0xff) ^ 0xff)) {
     return uf;
   }
   
-  unsigned sign = uf & (0x01 << 31);
-  unsigned exp = (uf >> 23) & 0xff;
-  unsigned frac = uf & ((0x01 << 23) + ~0);
+  sign = uf & (0x01 << 31);
+  exp = (uf >> 23) & 0xff;
+  frac = uf & ((0x01 << 23) + ~0);
   
   // 非规格化数和exp=1的规格化数需要右移尾数
   if (!(exp & 0xfe)) {
-    unsigned shifted_frac;
-    
     if (exp & 0x01) {
       // exp=1的规格化数：将隐含的1位加入尾数
       shifted_frac = (0x01 << 23) | frac;
@@ -409,7 +427,7 @@ unsigned floatScale1d2(unsigned uf) {
       shifted_frac = frac;
     }
   
-    unsigned result = shifted_frac >> 1;
+    result = shifted_frac >> 1;
 
     // 处理偶数舍入问题
     if ((shifted_frac & 0x01) && (result & 0x01)) {
@@ -435,15 +453,21 @@ unsigned floatScale1d2(unsigned uf) {
  *   Rating: 4
  */
 int floatFloat2Int(unsigned uf) {
-  unsigned sign = uf & (0x01 << 31);
-  unsigned exp = (uf >> 23) & 0xff;
-  unsigned frac = uf & ((0x01 << 23) + ~0);
+  unsigned sign;
+  unsigned exp;
+  unsigned frac;
+  int E;
+  unsigned value;
+  
+  sign = uf & (0x01 << 31);
+  exp = (uf >> 23) & 0xff;
+  frac = uf & ((0x01 << 23) + ~0);
   
   if (exp == 0xff) {
     return 0x80000000u;
   }
   
-  int E = exp - 127;
+  E = exp - 127;
   
   if (E < 0) {
     return 0;
@@ -453,7 +477,7 @@ int floatFloat2Int(unsigned uf) {
     return 0x80000000u;
   }
   
-  unsigned value = frac | (0x01 << 23);
+  value = frac | (0x01 << 23);
   
   if (E < 23) {
     value = value >> (23 - E);
