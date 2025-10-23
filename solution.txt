@@ -1,1 +1,2 @@
 Slave, thou hast slain me. Villain, take my purse.
+0 1 3 6 10 15
