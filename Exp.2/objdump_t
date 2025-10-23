@@ -1,0 +1,157 @@
+
+./bomb:     file format elf64-x86-64
+
+SYMBOL TABLE:
+0000000000400238 l    d  .interp	0000000000000000              .interp
+0000000000400254 l    d  .note.ABI-tag	0000000000000000              .note.ABI-tag
+0000000000400274 l    d  .note.gnu.build-id	0000000000000000              .note.gnu.build-id
+0000000000400298 l    d  .gnu.hash	0000000000000000              .gnu.hash
+00000000004002c8 l    d  .dynsym	0000000000000000              .dynsym
+00000000004005b0 l    d  .dynstr	0000000000000000              .dynstr
+0000000000400710 l    d  .gnu.version	0000000000000000              .gnu.version
+0000000000400750 l    d  .gnu.version_r	0000000000000000              .gnu.version_r
+00000000004007b0 l    d  .rela.dyn	0000000000000000              .rela.dyn
+0000000000400828 l    d  .rela.plt	0000000000000000              .rela.plt
+0000000000400a80 l    d  .init	0000000000000000              .init
+0000000000400aa0 l    d  .plt	0000000000000000              .plt
+0000000000400c40 l    d  .text	0000000000000000              .text
+0000000000402274 l    d  .fini	0000000000000000              .fini
+0000000000402280 l    d  .rodata	0000000000000000              .rodata
+00000000004027a8 l    d  .eh_frame_hdr	0000000000000000              .eh_frame_hdr
+00000000004028c0 l    d  .eh_frame	0000000000000000              .eh_frame
+0000000000602e10 l    d  .init_array	0000000000000000              .init_array
+0000000000602e18 l    d  .fini_array	0000000000000000              .fini_array
+0000000000602e20 l    d  .dynamic	0000000000000000              .dynamic
+0000000000602ff0 l    d  .got	0000000000000000              .got
+0000000000603000 l    d  .got.plt	0000000000000000              .got.plt
+00000000006030e0 l    d  .data	0000000000000000              .data
+0000000000603740 l    d  .bss	0000000000000000              .bss
+0000000000000000 l    d  .comment	0000000000000000              .comment
+0000000000000000 l    d  .debug_aranges	0000000000000000              .debug_aranges
+0000000000000000 l    d  .debug_info	0000000000000000              .debug_info
+0000000000000000 l    d  .debug_abbrev	0000000000000000              .debug_abbrev
+0000000000000000 l    d  .debug_line	0000000000000000              .debug_line
+0000000000000000 l    d  .debug_str	0000000000000000              .debug_str
+0000000000000000 l    d  .debug_loc	0000000000000000              .debug_loc
+0000000000000000 l    df *ABS*	0000000000000000              crtstuff.c
+0000000000400c80 l     F .text	0000000000000000              deregister_tm_clones
+0000000000400cb0 l     F .text	0000000000000000              register_tm_clones
+0000000000400cf0 l     F .text	0000000000000000              __do_global_dtors_aux
+0000000000603768 l     O .bss	0000000000000001              completed.7698
+0000000000602e18 l     O .fini_array	0000000000000000              __do_global_dtors_aux_fini_array_entry
+0000000000400d20 l     F .text	0000000000000000              frame_dummy
+0000000000602e10 l     O .init_array	0000000000000000              __frame_dummy_init_array_entry
+0000000000000000 l    df *ABS*	0000000000000000              bomb.c
+0000000000000000 l    df *ABS*	0000000000000000              phases.c
+0000000000402480 l     O .rodata	0000000000000040              array.3415
+0000000000000000 l    df *ABS*	0000000000000000              support.c
+00000000004012b2 l     F .text	0000000000000056              sig_handler
+0000000000000000 l    df *ABS*	0000000000000000              driverlib.c
+000000000040169d l     F .text	00000000000000bc              rio_readlineb
+0000000000000000 l    df *ABS*	0000000000000000              crtstuff.c
+0000000000402d6c l     O .eh_frame	0000000000000000              __FRAME_END__
+0000000000000000 l    df *ABS*	0000000000000000              
+0000000000602e18 l       .init_array	0000000000000000              __init_array_end
+0000000000602e20 l     O .dynamic	0000000000000000              _DYNAMIC
+0000000000602e10 l       .init_array	0000000000000000              __init_array_start
+00000000004027a8 l       .eh_frame_hdr	0000000000000000              __GNU_EH_FRAME_HDR
+0000000000603000 l     O .got.plt	0000000000000000              _GLOBAL_OFFSET_TABLE_
+0000000000402270 g     F .text	0000000000000002              __libc_csu_fini
+0000000000401406 g     F .text	0000000000000041              skip
+0000000000000000       F *UND*	0000000000000000              getenv@@GLIBC_2.2.5
+00000000004015d6 g     F .text	0000000000000099              phase_defused
+0000000000603190 g     O .data	0000000000000018              n31
+0000000000000000       F *UND*	0000000000000000              __errno_location@@GLIBC_2.2.5
+0000000000603740 g     O .bss	0000000000000008              stdout@@GLIBC_2.2.5
+00000000006030e0  w      .data	0000000000000000              data_start
+0000000000603780 g     O .bss	0000000000000640              input_strings
+0000000000000000       F *UND*	0000000000000000              strcpy@@GLIBC_2.2.5
+0000000000603170 g     O .data	0000000000000018              n33
+0000000000000000       F *UND*	0000000000000000              puts@@GLIBC_2.2.5
+0000000000603750 g     O .bss	0000000000000008              stdin@@GLIBC_2.2.5
+0000000000000000       F *UND*	0000000000000000              write@@GLIBC_2.2.5
+0000000000603740 g       .data	0000000000000000              _edata
+0000000000603230 g     O .data	0000000000000018              n44
+0000000000603290 g     O .data	0000000000000018              n46
+0000000000603250 g     O .data	0000000000000018              n42
+00000000006032b0 g     O .data	0000000000000018              n48
+0000000000402274 g     F .fini	0000000000000000              _fini
+0000000000000000       F *UND*	0000000000000000              __stack_chk_fail@@GLIBC_2.4
+000000000060376c g     O .bss	0000000000000004              num_input_strings
+000000000040104e g     F .text	000000000000008e              phase_5
+00000000004013c9 g     F .text	0000000000000002              initialize_bomb_solve
+00000000004013cb g     F .text	000000000000003b              blank_line
+0000000000401759 g     F .text	0000000000000821              submitr
+0000000000400ef3 g     F .text	00000000000000a9              phase_3
+0000000000400e6d g     F .text	000000000000001e              phase_1
+0000000000401308 g     F .text	0000000000000025              invalid_phase
+0000000000401fa3 g     F .text	00000000000001ec              init_driver
+0000000000000000       F *UND*	0000000000000000              alarm@@GLIBC_2.2.5
+0000000000000000       F *UND*	0000000000000000              close@@GLIBC_2.2.5
+00000000006032f0 g     O .data	0000000000000010              node3
+0000000000000000       F *UND*	0000000000000000              read@@GLIBC_2.2.5
+0000000000000000       F *UND*	0000000000000000              __libc_start_main@@GLIBC_2.2.5
+0000000000000000       F *UND*	0000000000000000              fgets@@GLIBC_2.2.5
+0000000000401447 g     F .text	0000000000000022              explode_bomb
+00000000006032d0 g     O .data	0000000000000010              node1
+00000000006030e0 g       .data	0000000000000000              __data_start
+0000000000000000       F *UND*	0000000000000000              signal@@GLIBC_2.2.5
+0000000000000000       F *UND*	0000000000000000              gethostbyname@@GLIBC_2.2.5
+0000000000603310 g     O .data	0000000000000010              node5
+0000000000000000       F *UND*	0000000000000000              __memmove_chk@@GLIBC_2.3.4
+0000000000000000  w      *UND*	0000000000000000              __gmon_start__
+0000000000000000       F *UND*	0000000000000000              strtol@@GLIBC_2.2.5
+0000000000401220 g     F .text	000000000000003f              fun7
+00000000006030e8 g     O .data	0000000000000000              .hidden __dso_handle
+0000000000402280 g     O .rodata	0000000000000004              _IO_stdin_used
+0000000000603130 g     O .data	0000000000000018              n22
+0000000000603340 g     O .data	0000000000000400              host_table
+0000000000400f9c g     F .text	000000000000003f              func4
+00000000006030f0 g     O .data	0000000000000018              n1
+000000000040132d g     F .text	000000000000001d              string_length
+0000000000402200 g     F .text	0000000000000065              __libc_csu_init
+0000000000000000       F *UND*	0000000000000000              fflush@@GLIBC_2.2.5
+0000000000000000       F *UND*	0000000000000000              __isoc99_sscanf@@GLIBC_2.7
+00000000006031b0 g     O .data	0000000000000018              n34
+0000000000603150 g     O .data	0000000000000018              n32
+0000000000603e10 g       .bss	0000000000000000              _end
+0000000000400c70 g     F .text	0000000000000002              .hidden _dl_relocate_static_pie
+0000000000400c40 g     F .text	000000000000002b              _start
+000000000040125f g     F .text	0000000000000053              secret_phase
+0000000000603770 g     O .bss	0000000000000008              infile
+000000000040166f g     F .text	000000000000002e              sigalrm_handler
+0000000000401f7a g     F .text	0000000000000029              init_timeout
+0000000000603740 g       .bss	0000000000000000              __bss_start
+0000000000400d27 g     F .text	0000000000000146              main
+0000000000000000       F *UND*	0000000000000000              __printf_chk@@GLIBC_2.3.4
+0000000000603210 g     O .data	0000000000000018              n47
+0000000000603270 g     O .data	0000000000000018              n43
+00000000006031f0 g     O .data	0000000000000018              n41
+00000000004014a8 g     F .text	000000000000012e              read_line
+00000000006031d0 g     O .data	0000000000000018              n45
+000000000040134a g     F .text	0000000000000067              strings_not_equal
+0000000000400fdb g     F .text	0000000000000073              phase_4
+0000000000000000       F *UND*	0000000000000000              fopen@@GLIBC_2.2.5
+00000000004010dc g     F .text	0000000000000144              phase_6
+0000000000603dc0 g     O .bss	0000000000000050              scratch
+000000000040218f g     F .text	000000000000006a              driver_post
+0000000000400e8b g     F .text	0000000000000068              phase_2
+0000000000000000       F *UND*	0000000000000000              exit@@GLIBC_2.2.5
+0000000000603330 g     O .data	0000000000000004              bomb_id
+0000000000000000       F *UND*	0000000000000000              connect@@GLIBC_2.2.5
+0000000000603740 g     O .data	0000000000000000              .hidden __TMC_END__
+0000000000000000       F *UND*	0000000000000000              __fprintf_chk@@GLIBC_2.3.4
+00000000006032e0 g     O .data	0000000000000010              node2
+0000000000603300 g     O .data	0000000000000010              node4
+0000000000000000       F *UND*	0000000000000000              sleep@@GLIBC_2.2.5
+0000000000603320 g     O .data	0000000000000010              node6
+0000000000400a80 g     F .init	0000000000000000              _init
+0000000000401469 g     F .text	000000000000003f              read_six_numbers
+0000000000603110 g     O .data	0000000000000018              n21
+00000000004013b1 g     F .text	0000000000000018              initialize_bomb
+0000000000000000       F *UND*	0000000000000000              __ctype_b_loc@@GLIBC_2.3
+0000000000603760 g     O .bss	0000000000000008              stderr@@GLIBC_2.2.5
+0000000000000000       F *UND*	0000000000000000              __sprintf_chk@@GLIBC_2.3.4
+0000000000000000       F *UND*	0000000000000000              socket@@GLIBC_2.2.5
+
+
