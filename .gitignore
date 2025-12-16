@@ -1,2 +1,3 @@
 .cursorindexingignore
 .specstory
+*.code-workspace
