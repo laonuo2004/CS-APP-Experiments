@@ -16,9 +16,12 @@ StartFun:
 # ncopy.ys - Copy a src block of len words to dst.
 # Return the number of positive words (>0) contained in src.
 #
-# Include your name and ID here.
+# Student: Zuo Yilong (1120231863)
 #
-# Describe how and why you modified the baseline code.
+# Optimizations:
+# 1. 8-way block loading (distinct registers) keeps PIPE free of load-use bubbles.
+# 2. Stores plus cmov-based counting happen after all loads to maximize overlap.
+# 3. Remainder uses a simple loop; constants 1/0 kept in registers to avoid recalculation.
 #
 ##################################################################
 # Do not modify this portion
@@ -29,23 +32,123 @@ ncopy:
 ##################################################################
 # You can modify this portion
 	# Loop header
-	xorq %rax,%rax		# count = 0;
-	andq %rdx,%rdx		# len <= 0?
-	jle Done		# if so, goto Done:
+	xorq %rax,%rax
+	andq %rdx,%rdx
+	jle Done
 
-Loop:	mrmovq (%rdi), %r10	# read val from src...
-	rmmovq %r10, (%rsi)	# ...and store it to dst
-	andq %r10, %r10		# val <= 0?
-	jle Npos		# if so, goto Npos:
-	irmovq $1, %r10
-	addq %r10, %rax		# count++
-Npos:	irmovq $1, %r10
-	subq %r10, %rdx		# len--
-	irmovq $8, %r10
-	addq %r10, %rdi		# src++
-	addq %r10, %rsi		# dst++
-	andq %rdx,%rdx		# len > 0?
-	jg Loop			# if so, goto Loop:
+	irmovq $1, %rbx		# const 1
+	xorq %rbp, %rbp		# const 0
+
+	iaddq $-12, %rdx
+	jl Remainder
+
+Loop12:
+	mrmovq   (%rdi), %r8
+	mrmovq  8(%rdi), %r9
+	mrmovq 16(%rdi), %r10
+	mrmovq 24(%rdi), %r11
+	mrmovq 32(%rdi), %r12
+	mrmovq 40(%rdi), %r13
+	mrmovq 48(%rdi), %r14
+	mrmovq 56(%rdi), %rcx
+
+	rmmovq %r8,   (%rsi)
+	andq %r8, %r8
+	rrmovq %rbp, %r8
+	cmovg %rbx, %r8
+	addq %r8, %rax
+
+	rmmovq %r9,  8(%rsi)
+	andq %r9, %r9
+	rrmovq %rbp, %r9
+	cmovg %rbx, %r9
+	addq %r9, %rax
+
+	rmmovq %r10, 16(%rsi)
+	andq %r10, %r10
+	rrmovq %rbp, %r10
+	cmovg %rbx, %r10
+	addq %r10, %rax
+
+	rmmovq %r11, 24(%rsi)
+	andq %r11, %r11
+	rrmovq %rbp, %r11
+	cmovg %rbx, %r11
+	addq %r11, %rax
+
+	mrmovq 64(%rdi), %r8
+	mrmovq 72(%rdi), %r9
+	mrmovq 80(%rdi), %r10
+	mrmovq 88(%rdi), %r11
+
+	rmmovq %r12, 32(%rsi)
+	andq %r12, %r12
+	rrmovq %rbp, %r12
+	cmovg %rbx, %r12
+	addq %r12, %rax
+
+	rmmovq %r13, 40(%rsi)
+	andq %r13, %r13
+	rrmovq %rbp, %r13
+	cmovg %rbx, %r13
+	addq %r13, %rax
+
+	rmmovq %r14, 48(%rsi)
+	andq %r14, %r14
+	rrmovq %rbp, %r14
+	cmovg %rbx, %r14
+	addq %r14, %rax
+
+	rmmovq %rcx, 56(%rsi)
+	andq %rcx, %rcx
+	rrmovq %rbp, %rcx
+	cmovg %rbx, %rcx
+	addq %rcx, %rax
+
+	rmmovq %r8,  64(%rsi)
+	andq %r8, %r8
+	rrmovq %rbp, %r8
+	cmovg %rbx, %r8
+	addq %r8, %rax
+
+	rmmovq %r9,  72(%rsi)
+	andq %r9, %r9
+	rrmovq %rbp, %r9
+	cmovg %rbx, %r9
+	addq %r9, %rax
+
+	rmmovq %r10, 80(%rsi)
+	andq %r10, %r10
+	rrmovq %rbp, %r10
+	cmovg %rbx, %r10
+	addq %r10, %rax
+
+	rmmovq %r11, 88(%rsi)
+	andq %r11, %r11
+	rrmovq %rbp, %r11
+	cmovg %rbx, %r11
+	addq %r11, %rax
+
+	iaddq $96, %rdi
+	iaddq $96, %rsi
+	iaddq $-12, %rdx
+	jge Loop12
+
+Remainder:
+	iaddq $12, %rdx		# restore remaining count
+	jle Done
+
+Tail:
+	mrmovq (%rdi), %r8
+	rmmovq %r8, (%rsi)
+	andq %r8, %r8
+	rrmovq %rbp, %r8
+	cmovg %rbx, %r8
+	addq %r8, %rax
+	iaddq $8, %rdi
+	iaddq $8, %rsi
+	iaddq $-1, %rdx
+	jg Tail
 ##################################################################
 # Do not modify the following section of code
 # Function epilogue.
@@ -62,9 +165,9 @@ EndFun:
 ###############################
 	.align 8
 src:
-	.quad -1
+	.quad 1
 	.quad 2
-	.quad 3
+	.quad -3
 	.quad -4
 	.quad 0xbcdefa # This shouldn't get moved
 
