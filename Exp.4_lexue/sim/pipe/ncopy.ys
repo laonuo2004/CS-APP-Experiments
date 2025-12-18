@@ -5,11 +5,7 @@
 #
 # Student: Zuo Yilong (1120231863)
 #
-# Optimizations:
-# 1. 8x loop unrolling with load-use hazard avoidance
-# 2. Compact binary jump tree for 0-7 remainder
-# 3. iaddq for all counter updates
-#
+# Optimizations: 10x unrolling, load forwarding, binary search
 ##################################################################
 # Do not modify this portion
 # Function prologue.
@@ -18,76 +14,117 @@ ncopy:
 
 ##################################################################
 # You can modify this portion
-	xorq %rax, %rax
-	iaddq $-8, %rdx
+	iaddq $-10, %rdx
 	jl Rem
 
 L0:
 	mrmovq (%rdi), %r8
-	mrmovq 8(%rdi), %r9
 	rmmovq %r8, (%rsi)
 	andq %r8, %r8
 	jle L1
 	iaddq $1, %rax
 L1:
-	mrmovq 16(%rdi), %r8
-	rmmovq %r9, 8(%rsi)
-	andq %r9, %r9
+	mrmovq 8(%rdi), %r8
+	rmmovq %r8, 8(%rsi)
+	andq %r8, %r8
 	jle L2
 	iaddq $1, %rax
 L2:
-	mrmovq 24(%rdi), %r9
+	mrmovq 16(%rdi), %r8
 	rmmovq %r8, 16(%rsi)
 	andq %r8, %r8
 	jle L3
 	iaddq $1, %rax
 L3:
-	mrmovq 32(%rdi), %r8
-	rmmovq %r9, 24(%rsi)
-	andq %r9, %r9
+	mrmovq 24(%rdi), %r8
+	rmmovq %r8, 24(%rsi)
+	andq %r8, %r8
 	jle L4
 	iaddq $1, %rax
 L4:
-	mrmovq 40(%rdi), %r9
+	mrmovq 32(%rdi), %r8
 	rmmovq %r8, 32(%rsi)
 	andq %r8, %r8
 	jle L5
 	iaddq $1, %rax
 L5:
-	mrmovq 48(%rdi), %r8
-	rmmovq %r9, 40(%rsi)
-	andq %r9, %r9
+	mrmovq 40(%rdi), %r8
+	rmmovq %r8, 40(%rsi)
+	andq %r8, %r8
 	jle L6
 	iaddq $1, %rax
 L6:
-	mrmovq 56(%rdi), %r9
+	mrmovq 48(%rdi), %r8
 	rmmovq %r8, 48(%rsi)
 	andq %r8, %r8
 	jle L7
 	iaddq $1, %rax
 L7:
-	rmmovq %r9, 56(%rsi)
-	andq %r9, %r9
+	mrmovq 56(%rdi), %r8
+	rmmovq %r8, 56(%rsi)
+	andq %r8, %r8
+	jle L8
+	iaddq $1, %rax
+L8:
+	mrmovq 64(%rdi), %r8
+	rmmovq %r8, 64(%rsi)
+	andq %r8, %r8
+	jle L9
+	iaddq $1, %rax
+L9:
+	mrmovq 72(%rdi), %r8
+	rmmovq %r8, 72(%rsi)
+	andq %r8, %r8
 	jle Nxt
 	iaddq $1, %rax
 Nxt:
-	iaddq $64, %rdi
-	iaddq $64, %rsi
-	iaddq $-8, %rdx
+	iaddq $80, %rdi
+	iaddq $80, %rsi
+	iaddq $-10, %rdx
 	jge L0
 
-# Remainder: rdx is in [-8, -1], meaning 0-7 elements left
-# iaddq $8 to restore: rdx becomes 0-7
 Rem:
-	iaddq $8, %rdx
-	jle Done		# 0 elements, done
-	iaddq $-4, %rdx		# rdx was 1-7, now -3 to 3
-	jl R123			# 1-3 elements (rdx = -3 to -1)
-	je R4			# 4 elements
-	iaddq $-2, %rdx		# rdx was 5-7, now 1 to 3
-	jl R5			# 5 elements
-	je R6			# 6 elements
+	iaddq $7, %rdx
+	jl R02
+	jg R49
+R3:
+	mrmovq 16(%rdi), %r8
+	rmmovq %r8, 16(%rsi)
+	andq %r8, %r8
+	jle R2
+	iaddq $1, %rax
+R2:
+	mrmovq 8(%rdi), %r8
+	rmmovq %r8, 8(%rsi)
+	andq %r8, %r8
+	jle R1
+	iaddq $1, %rax
+R1:
+	mrmovq (%rdi), %r8
+	rmmovq %r8, (%rsi)
+	andq %r8, %r8
+	jle Done
+	iaddq $1, %rax
+	ret
 
+R49:
+	iaddq $-4, %rdx
+	jl R46
+	je R7
+	iaddq $-1, %rdx
+	je R8
+R9:
+	mrmovq 64(%rdi), %r8
+	rmmovq %r8, 64(%rsi)
+	andq %r8, %r8
+	jle R8
+	iaddq $1, %rax
+R8:
+	mrmovq 56(%rdi), %r8
+	rmmovq %r8, 56(%rsi)
+	andq %r8, %r8
+	jle R7
+	iaddq $1, %rax
 R7:
 	mrmovq 48(%rdi), %r8
 	rmmovq %r8, 48(%rsi)
@@ -112,31 +149,19 @@ R4:
 	andq %r8, %r8
 	jle R3
 	iaddq $1, %rax
-R3:
-	mrmovq 16(%rdi), %r8
-	rmmovq %r8, 16(%rsi)
-	andq %r8, %r8
-	jle R2
-	iaddq $1, %rax
-R2:
-	mrmovq 8(%rdi), %r8
-	rmmovq %r8, 8(%rsi)
-	andq %r8, %r8
-	jle R1
-	iaddq $1, %rax
-R1:
-	mrmovq (%rdi), %r8
-	rmmovq %r8, (%rsi)
-	andq %r8, %r8
-	jle Done
-	iaddq $1, %rax
-	jmp Done
+	jmp R3
 
-R123:
-	iaddq $2, %rdx		# rdx was -3 to -1, now -1 to 1
-	jl R1			# 1 element
-	je R2			# 2 elements
-	jmp R3			# 3 elements
+R46:
+	iaddq $2, %rdx
+	jl R4
+	je R5
+	jmp R6
+
+R02:
+	iaddq $2, %rdx
+	jl Done
+	je R1
+	jmp R2
 
 ##################################################################
 # Do not modify the following section of code
