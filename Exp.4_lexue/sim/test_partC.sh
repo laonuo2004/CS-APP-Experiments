@@ -9,6 +9,14 @@ make -C "$PIPE_DIR" clean >/dev/null
 make -C "$PIPE_DIR" VERSION=full
 
 echo
+echo "== Part C: y86-code regression (ensure basic instructions work) =="
+(cd "$ROOT/y86-code" && make testpsim)
+
+echo
+echo "== Part C: ptest (includes iaddq suite) =="
+(cd "$ROOT/ptest" && make SIM=../pipe/psim TFLAGS=-i)
+
+echo
 echo "== Part C: (re)generating drivers and fresh yo files =="
 (cd "$PIPE_DIR" && make drivers && ../misc/yas ncopy.ys)
 

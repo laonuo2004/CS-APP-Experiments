@@ -11,7 +11,14 @@ for prog in "${progs[@]}"; do
   echo "[Assembling] ${prog}.ys"
   (cd misc && ./yas "${prog}.ys")
   echo "[Simulating] ${prog}.yo with yis"
-  (cd misc && ./yis "${prog}.yo")
-  echo "[OK] ${prog}"
+
+  OUTPUT=$(cd misc && ./yis "${prog}.yo" | tee /dev/tty)
+  
+  if echo "$OUTPUT" | grep -q "rax:.*0x0000000000000cba"; then
+      echo "[PASS] ${prog} returned correct result (0xcba)."
+  else
+      echo "[FAIL] ${prog} did NOT return 0xcba!"
+      exit 1
+  fi
 done
 

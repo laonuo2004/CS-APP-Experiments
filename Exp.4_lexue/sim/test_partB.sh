@@ -17,7 +17,11 @@ echo "== Part B: y86-code regression =="
 (cd "$ROOT/y86-code" && make testssim)
 
 echo
-echo "== Part B: ptest (includes iaddq suite) =="
+echo "== Part B: ptest (excluding iaddq) =="
+(cd "$ROOT/ptest" && make SIM=../seq/ssim)
+
+echo
+echo "== Part B: ptest (iaddq suite) =="
 (cd "$ROOT/ptest" && make SIM=../seq/ssim TFLAGS=-i)
 
 echo
