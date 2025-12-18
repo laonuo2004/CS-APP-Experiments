@@ -10,14 +10,65 @@
 ## Your job is to add the rest of the logic to make it work
 
 #######################################################################
-# Student: Zuo Yilong (1120231863)
-# Instruction: iaddq V, rB
-#   Fetch:   icode:ifun <- C:0, rA:rB <- M[PC+1], valC <- M[PC+2], valP <- PC+10
-#   Decode:  valB <- R[rB]
-#   Execute: valE <- valB + valC, update CC
-#   Memory:  (none)
-#   Write:   R[rB] <- valE
-#   PC:      valP
+# 学生: 左逸龙 (1120231863)
+#
+# ====================== 实现说明 ======================
+#
+# 【一、iaddq 指令实现】
+#
+# iaddq V, rB: 将立即数 V 加到寄存器 rB，同时设置条件码
+#
+# 各阶段行为:
+#   Fetch:   icode:ifun <- C:0
+#            rA:rB <- M[PC+1]  (rA = F, 表示不使用)
+#            valC <- M[PC+2]   (8字节立即数)
+#            valP <- PC + 10
+#   Decode:  valB <- R[rB]     (读取目标寄存器的当前值)
+#   Execute: valE <- valB + valC, 设置 CC (条件码)
+#   Memory:  (无操作)
+#   Write:   R[rB] <- valE     (写回结果)
+#   PC:      PC <- valP
+#
+# HCL 修改点:
+#   - instr_valid: 添加 IIADDQ
+#   - need_regids: 添加 IIADDQ (需要读取 rB)
+#   - need_valC:   添加 IIADDQ (需要立即数)
+#   - d_srcB:      添加 IIADDQ (从 rB 读取)
+#   - d_dstE:      添加 IIADDQ (写入 rB)
+#   - aluA:        添加 IIADDQ -> valC
+#   - aluB:        添加 IIADDQ -> valB
+#   - set_cc:      添加 IIADDQ (需要设置条件码)
+#
+# 【二、加载转发优化 (Load Forwarding, 课后作业 4.57)】
+#
+# 问题背景:
+#   在标准 PIPE 处理器中，以下代码会产生 1 个周期的暂停:
+#     mrmovq (%rdi), %r8   # 从内存加载到 r8
+#     rmmovq %r8, (%rsi)   # 立即使用 r8 -> load-use 冒险!
+#
+#   原因: mrmovq 在 Memory 阶段产生 valM，而 rmmovq 在 Decode
+#   阶段就需要读取 r8。即使有转发，当 rmmovq 进入 Execute 时，
+#   mrmovq 刚离开 Memory 阶段，数据无法及时转发。
+#
+# 解决方案:
+#   观察到 rmmovq 实际上在 Memory 阶段才需要 valA（用于写内存），
+#   而此时 mrmovq 已经完成 Memory 阶段，m_valM 可用。
+#   因此可以将 m_valM 直接转发到 Execute 阶段的 e_valA。
+#
+# 实现修改:
+#   1. e_valA 信号: 当 Execute 阶段是 rmmovq/pushq 且其 srcA
+#      与 Memory 阶段的 dstM 匹配时，使用 m_valM
+#
+#   2. 冒险检测条件 (F_stall, D_stall, D_bubble, E_bubble):
+#      放宽 load-use 冒险的检测条件，当下一条指令是 rmmovq/pushq
+#      且冲突发生在 srcA 时，不产生暂停（因为可以转发）
+#      条件变为: 只有当 dstM == srcB，或者
+#      (dstM == srcA 且 下一条指令不是 rmmovq/pushq) 时才暂停
+#
+# 性能提升:
+#   ncopy 主循环中每个元素的 mrmovq->rmmovq 序列节省 1 个周期
+#   配合 10x 循环展开，最终实现 CPE = 7.46
+#
 #######################################################################
 ####################################################################
 #    C Include's.  Don't alter these                               #

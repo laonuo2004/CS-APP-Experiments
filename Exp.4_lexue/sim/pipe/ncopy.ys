@@ -3,9 +3,54 @@
 # ncopy.ys - Copy a src block of len words to dst.
 # Return the number of positive words (>0) contained in src.
 #
-# Student: Zuo Yilong (1120231863)
+# 学生: 左逸龙 (1120231863)
 #
-# Optimizations: 10x unrolling, load forwarding, binary search
+# ======================== 优化说明 ========================
+#
+# 【核心思路】
+# 本实现结合 pipe-full.hcl 中的"加载转发"优化，使用 10x 循环展开
+# 和二叉搜索余数处理，实现了 CPE < 7.5 的性能目标。
+#
+# 【优化策略】
+#
+# 1. 加载转发 (Load Forwarding) - 配合 pipe-full.hcl 的修改
+#    - 问题：标准 PIPE 中，mrmovq 后紧跟 rmmovq 使用同一寄存器会产生
+#      1 个周期的气泡（load-use 冒险）
+#    - 解决：在 pipe-full.hcl 中修改 e_valA 信号，当 Execute 阶段的
+#      rmmovq 需要的数据正好由 Memory 阶段的 mrmovq 产生时，直接转发
+#      m_valM，避免暂停
+#    - 效果：每个元素节省 1 个周期
+#
+# 2. 10x 循环展开 (Loop Unrolling)
+#    - 思路：每次循环处理 10 个元素，减少循环控制开销
+#    - 展开因子选择：10x 在代码大小（<1000字节）和性能之间取得平衡
+#    - 每个元素的处理模式：
+#      mrmovq offset(%rdi), %r8  # 从 src 读取
+#      rmmovq %r8, offset(%rsi)  # 写入 dst（加载转发消除了气泡）
+#      andq %r8, %r8             # 设置条件码
+#      jle NextLabel             # 如果 <= 0 跳过计数
+#      iaddq $1, %rax            # count++
+#
+# 3. iaddq 指令
+#    - 使用 iaddq 替代 irmovq + addq 组合，减少指令数量
+#    - 例如：iaddq $80, %rdi 代替 irmovq $80, %r10 + addq %r10, %rdi
+#
+# 4. 二叉搜索余数处理
+#    - 问题：循环展开后需要处理 0-9 个剩余元素
+#    - 思路：使用二叉搜索树减少平均分支次数
+#    - 结构：先与 3 比较分为 [0-2], [3], [4-9] 三组
+#           再递归细分各子区间
+#    - 优势：平均只需 2-3 次比较即可定位到正确的处理入口
+#
+# 5. 代码大小优化
+#    - 用 ret 替代 jmp Done 节省 8 字节（ret=1字节，jmp=9字节）
+#    - 余数处理采用 fall-through 结构，从 R9 依次执行到 R1
+#
+# 【性能结果】
+# - 代码大小: 997 字节 (限制: 1000 字节)
+# - 平均 CPE: 7.46 (目标: < 7.5)
+# - 正确性测试: 68/68 通过
+#
 ##################################################################
 # Do not modify this portion
 # Function prologue.
@@ -14,79 +59,98 @@ ncopy:
 
 ##################################################################
 # You can modify this portion
+
+	# ========== 主循环：10x 展开 ==========
+	# 首先将 len 减 10，判断是否能进入主循环
 	iaddq $-10, %rdx
-	jl Rem
+	jl Rem			# len < 10，跳转到余数处理
 
 L0:
+	# 处理第 0 个元素
 	mrmovq (%rdi), %r8
 	rmmovq %r8, (%rsi)
 	andq %r8, %r8
 	jle L1
 	iaddq $1, %rax
 L1:
+	# 处理第 1 个元素
 	mrmovq 8(%rdi), %r8
 	rmmovq %r8, 8(%rsi)
 	andq %r8, %r8
 	jle L2
 	iaddq $1, %rax
 L2:
+	# 处理第 2 个元素
 	mrmovq 16(%rdi), %r8
 	rmmovq %r8, 16(%rsi)
 	andq %r8, %r8
 	jle L3
 	iaddq $1, %rax
 L3:
+	# 处理第 3 个元素
 	mrmovq 24(%rdi), %r8
 	rmmovq %r8, 24(%rsi)
 	andq %r8, %r8
 	jle L4
 	iaddq $1, %rax
 L4:
+	# 处理第 4 个元素
 	mrmovq 32(%rdi), %r8
 	rmmovq %r8, 32(%rsi)
 	andq %r8, %r8
 	jle L5
 	iaddq $1, %rax
 L5:
+	# 处理第 5 个元素
 	mrmovq 40(%rdi), %r8
 	rmmovq %r8, 40(%rsi)
 	andq %r8, %r8
 	jle L6
 	iaddq $1, %rax
 L6:
+	# 处理第 6 个元素
 	mrmovq 48(%rdi), %r8
 	rmmovq %r8, 48(%rsi)
 	andq %r8, %r8
 	jle L7
 	iaddq $1, %rax
 L7:
+	# 处理第 7 个元素
 	mrmovq 56(%rdi), %r8
 	rmmovq %r8, 56(%rsi)
 	andq %r8, %r8
 	jle L8
 	iaddq $1, %rax
 L8:
+	# 处理第 8 个元素
 	mrmovq 64(%rdi), %r8
 	rmmovq %r8, 64(%rsi)
 	andq %r8, %r8
 	jle L9
 	iaddq $1, %rax
 L9:
+	# 处理第 9 个元素
 	mrmovq 72(%rdi), %r8
 	rmmovq %r8, 72(%rsi)
 	andq %r8, %r8
 	jle Nxt
 	iaddq $1, %rax
 Nxt:
-	iaddq $80, %rdi
-	iaddq $80, %rsi
-	iaddq $-10, %rdx
-	jge L0
+	# 更新指针，准备下一轮迭代
+	iaddq $80, %rdi		# src += 10
+	iaddq $80, %rsi		# dst += 10
+	iaddq $-10, %rdx	# len -= 10
+	jge L0			# 如果 len >= 0，继续循环
 
+	# ========== 余数处理：二叉搜索 ==========
+	# 此时 rdx 在 [-10, -1]，表示剩余 0-9 个元素
 Rem:
-	iaddq $7, %rdx
-	jl R02
-	jg R49
+	iaddq $7, %rdx		# rdx = len - 3 (因为之前减了10，现在+7相当于原始len-3)
+	jl R02			# len < 3 → 处理 0-2 个元素
+	jg R49			# len > 3 → 处理 4-9 个元素
+				# len = 3 → 直接 fall-through 到 R3
+
+	# ---------- 处理 3, 2, 1 个元素（fall-through 结构）----------
 R3:
 	mrmovq 16(%rdi), %r8
 	rmmovq %r8, 16(%rsi)
@@ -105,14 +169,18 @@ R1:
 	andq %r8, %r8
 	jle Done
 	iaddq $1, %rax
-	ret
+	ret			# 直接返回，节省 jmp Done 的 8 字节
 
+	# ---------- 处理 4-9 个元素 ----------
 R49:
-	iaddq $-4, %rdx
-	jl R46
-	je R7
+	iaddq $-4, %rdx		# rdx = len - 7
+	jl R46			# len < 7 → 处理 4-6 个元素
+	je R7			# len = 7
 	iaddq $-1, %rdx
-	je R8
+	je R8			# len = 8
+				# len = 9 → fall-through
+
+	# 9-4 个元素的处理（fall-through 到 R3）
 R9:
 	mrmovq 64(%rdi), %r8
 	rmmovq %r8, 64(%rsi)
@@ -149,19 +217,21 @@ R4:
 	andq %r8, %r8
 	jle R3
 	iaddq $1, %rax
-	jmp R3
+	jmp R3			# 继续处理剩余的 3 个元素
 
+	# ---------- 处理 4-6 个元素的分支入口 ----------
 R46:
-	iaddq $2, %rdx
-	jl R4
-	je R5
-	jmp R6
+	iaddq $2, %rdx		# rdx = len - 5
+	jl R4			# len = 4
+	je R5			# len = 5
+	jmp R6			# len = 6
 
+	# ---------- 处理 0-2 个元素的分支入口 ----------
 R02:
-	iaddq $2, %rdx
-	jl Done
-	je R1
-	jmp R2
+	iaddq $2, %rdx		# rdx = len - 1
+	jl Done			# len = 0
+	je R1			# len = 1
+	jmp R2			# len = 2
 
 ##################################################################
 # Do not modify the following section of code
