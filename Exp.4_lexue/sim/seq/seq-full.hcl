@@ -10,14 +10,15 @@
 ## Your job is to add the rest of the logic to make it work
 
 #######################################################################
-# Student: Zuo Yilong (1120231863)
+# 姓名：左逸龙
+# 学号：1120231863
 # Instruction: iaddq V, rB
-#   Fetch:   icode:ifun <- C:0, rA:rB <- M[PC+1], valC <- M[PC+2], valP <- PC+10
-#   Decode:  valB <- R[rB]
-#   Execute: valE <- valB + valC, condition codes updated
-#   Memory:  (no access)
-#   Write:   R[rB] <- valE
-#   PC:      valP
+#   Fetch:     icode:ifun <- C:0, rA:rB <- M[PC+1], valC <- M[PC+2], valP <- PC+10
+#   Decode:    valB <- R[rB]
+#   Execute:   valE <- valB + valC, condition codes updated
+#   Memory:    (no access)
+#   Write:     R[rB] <- valE
+#   PC:        valP
 #######################################################################
 
 ####################################################################

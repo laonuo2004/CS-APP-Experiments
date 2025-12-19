@@ -1,0 +1,13 @@
+== Part A smoke tests ==
+
+[Assembling] sum.ys
+[Simulating] sum.yo with yis
+[PASS] sum returned correct result (0xcba).
+
+[Assembling] rsum.ys
+[Simulating] rsum.yo with yis
+[PASS] rsum returned correct result (0xcba).
+
+[Assembling] copy.ys
+[Simulating] copy.yo with yis
+[PASS] copy returned correct result (0xcba).

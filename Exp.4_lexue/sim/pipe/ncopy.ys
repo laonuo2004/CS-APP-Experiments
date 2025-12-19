@@ -3,7 +3,8 @@
 # ncopy.ys - Copy a src block of len words to dst.
 # Return the number of positive words (>0) contained in src.
 #
-# 学生: 左逸龙 (1120231863)
+# 姓名：左逸龙
+# 学号：1120231863
 #
 # ======================== 优化说明 ========================
 #

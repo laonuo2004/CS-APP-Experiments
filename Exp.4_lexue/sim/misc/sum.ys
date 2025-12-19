@@ -1,6 +1,7 @@
 .pos 0
 # sum.ys - Iteratively sum linked list elements
-# Student: 左逸龙 (1120231863)
+# 姓名：左逸龙
+# 学号：1120231863
     irmovq stack, %rsp
     call main
     halt
