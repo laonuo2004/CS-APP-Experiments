@@ -1,7 +1,8 @@
 /* 
  * tsh - A tiny shell program with job control
  * 
- * <Put your name and login ID here>
+ * 姓名: 左逸龙
+ * 学号: 1120231863
  */
 
 #define _POSIX_C_SOURCE 200809L
